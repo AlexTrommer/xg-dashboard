@@ -13,8 +13,10 @@ from fastapi.responses import FileResponse
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import data as D
+import threading
 from startup import ensure_data
-ensure_data()
+
+threading.Thread(target=ensure_data, daemon=True).start()
 
 app = FastAPI(title="xG Dashboard")
 app.add_middleware(CORSMiddleware, allow_origins=["*"],
