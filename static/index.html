@@ -1935,7 +1935,8 @@ async function selectSmPlayer(name) {
     sel.insertAdjacentHTML('beforeend',`<option value="${m.id}">${m.date} vs ${m.opp}${g} (${m.shots})</option>`);
   });
   sel.style.display = matches.length ? 'inline-block' : 'none';
-  loadShotMap();
+  _smAllShots = shots;
+  applySmFilters();
 }
 
 function clearSmPlayer() {
