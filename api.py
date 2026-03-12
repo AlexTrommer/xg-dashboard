@@ -290,20 +290,38 @@ def shots(
     match_id: str = Query(None),
     limit:    int = Query(2000),
 ):
-    df = _df("shots")
-    if league:    df = df[df["league"] == league]
-    if season:    df = df[df["season"] == season]
-    if team:      df = df[df["team"] == team]
-    if player:    df = df[df["player"] == player]
-    if match_id:  df = df[df["match_id"].astype(str) == match_id]
+    import pyarrow.parquet as pq
+    import pyarrow.compute as pc
+
+    p = Path("data/shots.parquet")
+    if not p.exists():
+        raise HTTPException(503, "Data not ready")
+
     cols = ["match_id","match_date","player","team","opponent","league","season",
             "minute","x","y","goal","situation","shot_type","xg","understat_xg"]
-    # opponent may not exist in older parquets — add empty col if missing
+
+    # Read only needed columns
+    available = pq.read_schema(p).names
+    read_cols = [c for c in cols if c in available]
+
+    # Build pyarrow filters for partition pruning
+    filters = []
+    if league:   filters.append(("league",  "=", league))
+    if season:   filters.append(("season",  "=", season))
+    if team:     filters.append(("team",    "=", team))
+    if player:   filters.append(("player",  "=", player))
+
+    df = pq.read_table(p, columns=read_cols,
+                       filters=filters if filters else None).to_pandas()
+
+    if match_id:
+        df = df[df["match_id"].astype(str) == match_id]
+
     for c in cols:
         if c not in df.columns:
             df[c] = ""
-    return df[cols].head(limit).fillna(0).to_dict(orient="records")
 
+    return df.head(limit).fillna(0).to_dict(orient="records")
 
 @app.get("/api/refresh")
 def refresh():
