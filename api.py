@@ -25,7 +25,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"],
 # Refresh current season every 6 hours
 scheduler = BackgroundScheduler()
 scheduler.add_job(lambda: D.refresh([D.CURRENT_SEASON]), "interval",
-                  hours=6, id="auto_refresh")
+                  hours=24, id="auto_refresh")
 scheduler.start()
 
 
