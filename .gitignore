@@ -1,0 +1,15 @@
+__pycache__/
+*.py:Zone.Identifier
+*.Zone.Identifier
+data/shots.parquet
+data/teams.parquet
+data/players.parquet
+data/matches.parquet
+data/timeline.parquet
+data/watchlist.parquet
+data/last_updated.txt
+data/best_params.json
+data/best_params_by_situation.json
+data/grid_results.csv
+data_fetch.log
+*.log
