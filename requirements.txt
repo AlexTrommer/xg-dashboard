@@ -4,6 +4,6 @@ pandas==2.2.3
 numpy==2.2.4
 xgboost==2.0.3
 scikit-learn==1.6.1
-pyarrow==16.1.0
+pyarrow==17.0.0
 apscheduler==3.10.4
 aiohttp==3.10.11
