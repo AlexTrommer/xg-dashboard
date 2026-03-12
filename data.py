@@ -261,8 +261,9 @@ def train(df: pd.DataFrame):
             router      = bundle["router"]
             feature_map = bundle.get("feature_map", {})
             valid       = df.dropna(subset=FEATURES)
-            preds       = _route_predict(valid.copy(), models, router, feature_map)
+            preds       = _route_predict(valid, models, router, feature_map)
             df.loc[valid.index, "xg"] = preds
+            del valid, preds
             df.loc[df["is_penalty"] == 1, "xg"] = PENALTY_XG
             df["xg"] = df["xg"].fillna(df["understat_xg"])
             return bundle, df
@@ -281,7 +282,7 @@ def train(df: pd.DataFrame):
     bundle = {"models": models, "router": router}
 
     valid = df.dropna(subset=FEATURES)
-    preds = _route_predict(valid.copy(), models, router)
+    preds = _route_predict(valid, models, router, feature_map)
     df.loc[valid.index, "xg"] = preds
     df.loc[df["is_penalty"] == 1, "xg"] = PENALTY_XG
     df["xg"] = df["xg"].fillna(df["understat_xg"])
@@ -467,6 +468,8 @@ def build_matches(df):
 
 
 # ── Master refresh ─────────────────────────────────────────────────────────────
+import gc
+
 def refresh(seasons=None):
     print(f"\n[{datetime.now():%H:%M:%S}] Refreshing…")
     df = engineer(pull_shots(seasons))
@@ -474,6 +477,8 @@ def refresh(seasons=None):
     df.to_parquet("data/shots.parquet", index=False)
     with open("model.pkl", "wb") as f:
         pickle.dump(bundle, f)
+    del bundle
+    gc.collect()
     build_team_table(df).to_parquet("data/teams.parquet", index=False)
     build_player_table(df).to_parquet("data/players.parquet", index=False)
     build_watchlist(df).to_parquet("data/watchlist.parquet", index=False)
@@ -491,6 +496,24 @@ if __name__ == "__main__":
         print("Rebuilding tables from existing shots.parquet…")
         df = pd.read_parquet("data/shots.parquet")
         _, df = train(df)
+        build_team_table(df).to_parquet("data/teams.parquet", index=False)
+        build_player_table(df).to_parquet("data/players.parquet", index=False)
+        build_watchlist(df).to_parquet("data/watchlist.parquet", index=False)
+        build_match_timeline(df).to_parquet("data/timeline.parquet", index=False)
+        build_matches(df).to_parquet("data/matches.parquet", index=False)
+        with open("data/last_updated.txt", "w") as f:
+            f.write(datetime.now().isoformat())
+        print("Done ✓")
+    elif "--current-season-only" in sys.argv:
+        # Fetch current season, merge with existing shots, rebuild tables
+        print(f"Refreshing current season ({CURRENT_SEASON}) only…")
+        new_df = engineer(pull_shots([CURRENT_SEASON]))
+        old_df = pd.read_parquet("data/shots.parquet")
+        old_df = old_df[old_df["season"] != int(CURRENT_SEASON)]
+        df = pd.concat([old_df, new_df], ignore_index=True)
+        del old_df, new_df
+        bundle, df = train(df)
+        df.to_parquet("data/shots.parquet", index=False)
         build_team_table(df).to_parquet("data/teams.parquet", index=False)
         build_player_table(df).to_parquet("data/players.parquet", index=False)
         build_watchlist(df).to_parquet("data/watchlist.parquet", index=False)
