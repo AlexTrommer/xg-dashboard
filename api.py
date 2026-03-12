@@ -18,6 +18,19 @@ from startup import ensure_data
 
 threading.Thread(target=ensure_data, daemon=True).start()
 
+# ── In-memory cache ────────────────────────────────────────────────────────────
+_CACHE: dict = {}
+
+def _df(name: str) -> pd.DataFrame:
+    if name not in _CACHE:
+        p = Path(f"data/{name}.parquet")
+        if not p.exists():
+            raise HTTPException(503, "Data not ready — run: python data.py")
+        _CACHE[name] = pd.read_parquet(p)
+    return _CACHE[name]
+
+def _invalidate_cache():
+    _CACHE.clear()
 app = FastAPI(title="xG Dashboard")
 app.add_middleware(CORSMiddleware, allow_origins=["*"],
                    allow_methods=["*"], allow_headers=["*"])
@@ -55,7 +68,7 @@ def leagues():
 
 @app.get("/api/seasons")
 def seasons():
-    return sorted(_df("shots")["season"].unique().tolist(), reverse=True)
+    return sorted(_df("teams")["season"].unique().tolist(), reverse=True)
 
 
 @app.get("/api/teams")
@@ -288,10 +301,10 @@ def shots(
 
 
 @app.get("/api/refresh")
-def manual_refresh(background_tasks: BackgroundTasks):
-    background_tasks.add_task(D.refresh, [D.CURRENT_SEASON])
-    return {"status": "refresh started", "message": "Check /api/status for completion"}
-
+def refresh():
+    _invalidate_cache()
+    threading.Thread(target=D.refresh, daemon=True).start()
+    return {"status": "refresh started"}
 
 # Serve frontend
 app.mount("/static", StaticFiles(directory="static"), name="static")
