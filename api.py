@@ -68,7 +68,12 @@ def leagues():
 
 @app.get("/api/seasons")
 def seasons():
-    return sorted(_df("teams")["season"].unique().tolist(), reverse=True)
+    import pyarrow.parquet as pq
+    p = Path("data/shots.parquet")
+    if not p.exists():
+        raise HTTPException(503, "Data not ready")
+    table = pq.read_table(p, columns=["season"])
+    return sorted(table.column("season").unique().to_pylist(), reverse=True)
 
 
 @app.get("/api/teams")
