@@ -11,10 +11,7 @@ def ensure_data():
     ]
     missing = [f for f in required if not Path(f).exists()]
     if missing:
-        print(f"[startup] Missing data files: {missing}")
-        print("[startup] Running data.py to fetch and train…")
-        import data as D
-        D.refresh()
-        print("[startup] Done ✓")
+        print(f"[startup] WARNING: Missing data files: {missing}")
+        print("[startup] Skipping fetch — run data.py locally and push updated parquets.")
     else:
-        print("[startup] Data files present — skipping initial fetch")
+        print("[startup] Data files present ✓")
