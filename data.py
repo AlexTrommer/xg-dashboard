@@ -250,7 +250,7 @@ def train(df: pd.DataFrame):
     )
 
     # Check if a trained model bundle already exists from train.py
-    model_path = Path("data/model.pkl")
+    model_path = Path("model.pkl")
     if model_path.exists():
         with open(model_path, "rb") as f:
             bundle = pickle.load(f)
@@ -472,7 +472,7 @@ def refresh(seasons=None):
     df = engineer(pull_shots(seasons))
     bundle, df = train(df)
     df.to_parquet("data/shots.parquet", index=False)
-    with open("data/model.pkl", "wb") as f:
+    with open("model.pkl", "wb") as f:
         pickle.dump(bundle, f)
     build_team_table(df).to_parquet("data/teams.parquet", index=False)
     build_player_table(df).to_parquet("data/players.parquet", index=False)
