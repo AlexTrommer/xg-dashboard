@@ -511,6 +511,7 @@ if __name__ == "__main__":
         old_df = pd.read_parquet("data/shots.parquet")
         old_df = old_df[old_df["season"] != int(CURRENT_SEASON)]
         df = pd.concat([old_df, new_df], ignore_index=True)
+        df = df.drop_duplicates(subset=["id"])
         del old_df, new_df
         bundle, df = train(df)
         df.to_parquet("data/shots.parquet", index=False)
