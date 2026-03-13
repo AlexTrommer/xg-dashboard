@@ -35,4 +35,4 @@ jobs:
           git add data/*.parquet
           git diff --staged --quiet || git commit -m "chore: daily data refresh $(date -u +%Y-%m-%d)"
           git pull --rebase origin main
-          git push
+          git push origin main --force-with-lease
