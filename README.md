@@ -2,7 +2,7 @@
 
 XGBoost-powered expected goals dashboard for the top 5 European football leagues, built on Understat shot data. Features per-situation specialist models, a rolling form guide (Watch List), interactive shot maps, and cumulative xG match timelines.
 
-Live dashboard: [***Coming soon***]
+Live dashboard: (https://xg-dashboard.up.railway.app/)
 
 ## Model
 
