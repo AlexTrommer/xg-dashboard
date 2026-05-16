@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>xG Dashboard — Shot Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="shared.css"/>
+</head>
+<body>
+<div class="shell">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="index.html" class="logo-title">x<span>G</span></a>
+    <div class="logo-sub">Dashboard</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Analysis</div>
+    <a href="index.html"     class="nav-item"><span class="nav-icon">⬡</span><span>Teams</span></a>
+    <a href="players.html"   class="nav-item"><span class="nav-icon">◈</span><span>Players</span></a>
+    <a href="matches.html"   class="nav-item"><span class="nav-icon">◎</span><span>Matches</span></a>
+    <a href="shotmap.html"   class="nav-item"><span class="nav-icon">◉</span><span>Shot Map</span></a>
+    <div class="nav-section">Scouting</div>
+    <a href="watchlist.html" class="nav-item"><span class="nav-icon">★</span><span>Watch List</span><span class="nav-badge">NEW</span></a>
+    <div class="nav-section">Info</div>
+    <a href="about.html"     class="nav-item"><span class="nav-icon">◇</span><span>About</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-dot"></div>
+    <div class="status-text">
+      <div id="lastUpdated" style="font-size:9px">Loading…</div>
+      <div style="font-size:9px;color:var(--muted2)">Last refresh</div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title">Shot Map</span>
+    <div class="topbar-filters">
+      <span class="filter-label">League</span>
+      <select id="fLeague" autocomplete="off" onchange="onFilterChange()"><option value="">All Leagues</option></select>
+      <span class="filter-label">Season</span>
+      <select id="fSeason" autocomplete="off" onchange="onFilterChange()"><option value="">All Seasons</option></select>
+      <span class="filter-label">Team</span>
+      <select id="fTeam" autocomplete="off" onchange="onFilterChange()"><option value="">All Teams</option></select>
+      <button class="refresh-btn" onclick="triggerRefresh()">↻</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <div class="page-eyebrow">Spatial Analysis</div>
+        <div class="page-title">Shot Map</div>
+        <div class="page-meta">Shot location · xG value · Goals vs misses</div>
+      </div>
+    </div>
+
+    <div class="shotmap-container">
+      <div class="shotmap-controls">
+        <span class="filter-label">Show</span>
+        <select id="smScope" onchange="onSmScopeChange()">
+          <option value="team">Team</option>
+          <option value="player">Player</option>
+        </select>
+        <div class="search-wrap" id="smPlayerWrap" style="display:none">
+          <span class="search-icon">⌕</span>
+          <input class="search-input" id="smPlayerInput" type="text" placeholder="Search player…" oninput="onSmPlayerSearch(this.value)" onfocus="openSmDropdown()" autocomplete="off"/>
+          <button class="search-clear" id="smPlayerClear" onclick="clearSmPlayer()">✕</button>
+          <div class="search-dropdown" id="smPlayerDropdown"></div>
+        </div>
+        <select id="smMatchId" onchange="loadShotMap()" style="display:none"><option value="">All games</option></select>
+        <span class="filter-label" style="margin-left:12px">Legend</span>
+        <span style="font-size:11px;color:var(--muted)">● Goal &nbsp; ○ No goal</span>
+      </div>
+      <div class="sm-filter-bar" style="margin-bottom:14px">
+        <span class="filter-label">Type</span>
+        <button class="sm-chip active" data-filter="all"     onclick="smChipClick(this)">All</button>
+        <button class="sm-chip"        data-filter="Right"   onclick="smChipClick(this)">Right foot</button>
+        <button class="sm-chip"        data-filter="Left"    onclick="smChipClick(this)">Left foot</button>
+        <button class="sm-chip"        data-filter="Head"    onclick="smChipClick(this)">Header</button>
+        <button class="sm-chip"        data-filter="Penalty" onclick="smChipClick(this)">Penalty</button>
+        <button class="sm-chip" id="smExclPen" onclick="smExclPenClick(this)" style="margin-left:8px;border-color:var(--red);color:var(--red)">Excl. penalties</button>
+        <div class="xg-range" style="margin-left:auto">
+          <span class="filter-label">xG</span>
+          <span id="smXgMin">0.00</span>
+          <input type="range" id="smXgMinSlider" min="0" max="100" value="0" oninput="onXgRange()"/>
+          <input type="range" id="smXgMaxSlider" min="0" max="100" value="100" oninput="onXgRange()"/>
+          <span id="smXgMax">1.00</span>
+        </div>
+      </div>
+      <div style="position:relative">
+        <svg id="shotMapSvg" class="pitch" viewBox="0 0 840 540" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="stripes" width="60" height="540" patternUnits="userSpaceOnUse">
+              <rect width="30" height="540" fill="rgba(255,255,255,.012)"/>
+            </pattern>
+          </defs>
+          <rect width="840" height="540" fill="#040a04" rx="4"/>
+          <rect x="2" y="2" width="836" height="536" fill="url(#stripes)" rx="3"/>
+          <rect x="20" y="20" width="800" height="500" fill="none" stroke="#122012" stroke-width="1.5"/>
+          <line x1="420" y1="20" x2="420" y2="520" stroke="#122012" stroke-width="1.2"/>
+          <circle cx="420" cy="270" r="73" fill="none" stroke="#122012" stroke-width="1.2"/>
+          <circle cx="420" cy="270" r="3" fill="#122012"/>
+          <rect x="20" y="135" width="132" height="270" fill="none" stroke="#162e16" stroke-width="1.2"/>
+          <rect x="20" y="202" width="44" height="136" fill="none" stroke="#162e16" stroke-width="1.2"/>
+          <rect x="8" y="232" width="12" height="76" fill="#0a180a" stroke="#162e16" stroke-width="1"/>
+          <rect x="688" y="135" width="132" height="270" fill="none" stroke="#1e3a1e" stroke-width="1.5"/>
+          <rect x="796" y="202" width="44" height="136" fill="none" stroke="#1e3a1e" stroke-width="1.5"/>
+          <circle cx="751" cy="270" r="3" fill="#1e3a1e"/>
+          <path d="M 688 200 A 73 73 0 0 1 688 340" fill="none" stroke="#1e3a1e" stroke-width="1.5"/>
+          <rect x="820" y="232" width="18" height="76" fill="#0d2a0d" stroke="#2a5a2a" stroke-width="1.5"/>
+          <line x1="820" y1="232" x2="820" y2="308" stroke="var(--accent)" stroke-width="2" opacity=".4"/>
+          <text x="829" y="274" text-anchor="middle" fill="var(--accent)" font-size="9" opacity=".5" transform="rotate(90,829,274)">GOAL</text>
+        </svg>
+        <div class="shot-tooltip" id="shotTooltip"></div>
+      </div>
+      <div style="margin-top:12px;text-align:center;color:var(--muted);font-size:11px" id="shotMapMeta"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+async function onFilterChange() {
+  _playerCache = [];
+  await loadTeamFilter();
+  loadShotMap();
+}
+
+async function loadShotMap() {
+  const scope = document.getElementById('smScope').value;
+  const {league, season, team} = getFilters();
+  const svg  = document.getElementById('shotMapSvg');
+  const meta = document.getElementById('shotMapMeta');
+  svg.querySelectorAll('.shot-dot').forEach(el=>el.remove());
+  meta.textContent='';
+  if (scope==='team' && !league && !team) {
+    meta.innerHTML='<span style="color:var(--accent)">Select a league or team above to load shots</span>';
+    return;
+  }
+  let url = '/api/shots?limit=5000';
+  if (scope==='player' && _smSelectedPlayer) {
+    url += `&player=${encodeURIComponent(_smSelectedPlayer)}`;
+    const mid = document.getElementById('smMatchId').value;
+    if (mid) url += `&match_id=${encodeURIComponent(mid)}`;
+  } else {
+    if (team)   url += `&team=${encodeURIComponent(team)}`;
+    if (league) url += `&league=${encodeURIComponent(league)}`;
+  }
+  if (season) url += `&season=${encodeURIComponent(season)}`;
+  try {
+    _smAllShots = await get(url);
+    applySmFilters();
+  } catch(e) { console.error(e); }
+}
+
+function applySmFilters() {
+  const svg  = document.getElementById('shotMapSvg');
+  const meta = document.getElementById('shotMapMeta');
+  const tip  = document.getElementById('shotTooltip');
+  svg.querySelectorAll('.shot-dot').forEach(el=>el.remove());
+  const xgMin = +document.getElementById('smXgMinSlider').value / 100;
+  const xgMax = +document.getElementById('smXgMaxSlider').value / 100;
+  const mid   = document.getElementById('smMatchId').value;
+  let filtered = _smAllShots.filter(s => { const xg=+s.xg||0; return xg>=xgMin && xg<=xgMax; });
+  if (mid)      filtered = filtered.filter(s => String(s.match_id)===String(mid));
+  if (_smExclPen) filtered = filtered.filter(s => s.situation!=='Penalty');
+  if (_smTypeFilter !== 'all') {
+    if (_smTypeFilter==='Head')    filtered = filtered.filter(s=>(s.shot_type||'').toLowerCase()==='head');
+    else if (_smTypeFilter==='Penalty') filtered = filtered.filter(s=>s.situation==='Penalty');
+    else filtered = filtered.filter(s=>(s.shot_type||'').toLowerCase().includes(_smTypeFilter.toLowerCase()));
+  }
+  const PX1=20,PX2=820,PY1=20,PY2=520,W=PX2-PX1,H=PY2-PY1;
+  const fmtMin = m => { m=+m; return m>90?`90+${m-90}'`:`${m}'`; };
+  filtered.forEach(s => {
+    const xg = Math.min(+s.xg||0.05,1);
+    const r  = Math.max(3.5,xg*16);
+    const isGoal = s.goal===1||s.goal===true;
+    const sx = PX1+(Math.max(0.17,Math.min(1.01,(+s.x||0)/100)))*W;
+    const sy = PY1+(Math.max(0.02,Math.min(0.98,(+s.y||0)/100)))*H;
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx',sx); circle.setAttribute('cy',sy); circle.setAttribute('r',r);
+    circle.setAttribute('class','shot-dot');
+    if (isGoal) { circle.setAttribute('fill','var(--accent)'); circle.setAttribute('opacity','0.85'); circle.setAttribute('stroke','#fff'); circle.setAttribute('stroke-width','1'); }
+    else { circle.setAttribute('fill','none'); circle.setAttribute('stroke','var(--accent)'); circle.setAttribute('stroke-width','1.2'); circle.setAttribute('opacity','0.25'); }
+    circle.addEventListener('mouseenter', e => {
+      circle.setAttribute('opacity','1'); tip.style.display='block';
+      tip.innerHTML = `<div class="t-player" style="color:var(--accent)">${s.player||'—'}</div><div class="t-row">${s.team||''} ${s.opponent?'vs '+s.opponent:''}</div><div class="t-row">${s.match_date||''} · ${fmtMin(s.minute)}</div><div class="t-row">${s.situation||''} · ${s.shot_type||''}</div><div class="t-row">xG: <span class="t-xg">${(+s.xg||0).toFixed(3)}</span></div><div class="t-row" style="font-weight:700;color:${isGoal?'var(--accent)':'var(--muted)'}">${isGoal?'⚽ GOAL':'No goal'}</div>`;
+    });
+    circle.addEventListener('mousemove', e => {
+      const rect = svg.parentElement.getBoundingClientRect();
+      tip.style.left=(e.clientX-rect.left+14)+'px'; tip.style.top=(e.clientY-rect.top-10)+'px';
+    });
+    circle.addEventListener('mouseleave', () => { circle.setAttribute('opacity',isGoal?'0.85':'0.25'); tip.style.display='none'; });
+    svg.appendChild(circle);
+  });
+  const goals = filtered.filter(s=>s.goal).length;
+  meta.textContent = `${filtered.length} shots · ${goals} goals · avg xG ${filtered.length?(filtered.reduce((a,s)=>a+(+s.xg||0),0)/filtered.length).toFixed(3):'—'}`;
+}
+
+function onXgRange() {
+  const min = +document.getElementById('smXgMinSlider').value;
+  const max = +document.getElementById('smXgMaxSlider').value;
+  if (min > max) document.getElementById('smXgMinSlider').value = max;
+  document.getElementById('smXgMin').textContent = (min/100).toFixed(2);
+  document.getElementById('smXgMax').textContent = (max/100).toFixed(2);
+  applySmFilters();
+}
+
+function smChipClick(btn) {
+  document.querySelectorAll('.sm-chip:not(#smExclPen)').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  _smTypeFilter = btn.dataset.filter;
+  applySmFilters();
+}
+
+function smExclPenClick(btn) {
+  _smExclPen = !_smExclPen;
+  btn.classList.toggle('active',_smExclPen);
+  btn.style.background=_smExclPen?'#ff4444':''; btn.style.borderColor=_smExclPen?'#ff4444':'var(--red)'; btn.style.color=_smExclPen?'var(--bg)':'var(--red)';
+  if (_smExclPen && _smTypeFilter==='Penalty') { _smTypeFilter='all'; document.querySelectorAll('.sm-chip:not(#smExclPen)').forEach(c=>c.classList.toggle('active',c.dataset.filter==='all')); }
+  applySmFilters();
+}
+
+function onSmScopeChange() {
+  const scope = document.getElementById('smScope').value;
+  document.getElementById('smPlayerWrap').style.display = scope==='player' ? 'inline-block' : 'none';
+  if (scope==='team') {
+    _smSelectedPlayer=''; _smAllShots=[];
+    document.getElementById('smMatchId').style.display='none';
+    document.getElementById('smMatchId').innerHTML='<option value="">All games</option>';
+    resetSmFilterUI();
+  }
+  loadShotMap();
+}
+
+function resetSmFilterUI() {
+  _smTypeFilter='all'; _smExclPen=false;
+  document.querySelectorAll('.sm-chip:not(#smExclPen)').forEach(c=>c.classList.toggle('active',c.dataset.filter==='all'));
+  const ex=document.getElementById('smExclPen');
+  ex.classList.remove('active'); ex.style.background=''; ex.style.borderColor='var(--red)'; ex.style.color='var(--red)';
+  document.getElementById('smXgMinSlider').value=0; document.getElementById('smXgMaxSlider').value=100;
+  document.getElementById('smXgMin').textContent='0.00'; document.getElementById('smXgMax').textContent='1.00';
+}
+
+async function onSmPlayerSearch(val) {
+  await ensurePlayerCache();
+  document.getElementById('smPlayerClear').style.display = val ? 'block' : 'none';
+  const dd = document.getElementById('smPlayerDropdown');
+  const matches = filterPlayers(val);
+  if (!val || !matches.length) { dd.classList.remove('open'); return; }
+  dd.innerHTML = matches.map(p=>`
+    <div class="search-item" onclick="selectSmPlayer('${esc(p.player)}')">
+      <span class="si-xg">${p.xg} xG</span>
+      <div class="si-name">${p.player}</div>
+      <div class="si-meta">${p.team} · ${shortLeague(p.league)} · ${p.shots} shots</div>
+    </div>`).join('');
+  dd.classList.add('open');
+}
+
+function openSmDropdown() {
+  const val = document.getElementById('smPlayerInput').value;
+  if (val.length >= 2) onSmPlayerSearch(val);
+}
+
+async function selectSmPlayer(name) {
+  _smSelectedPlayer = name;
+  document.getElementById('smPlayerInput').value = name;
+  document.getElementById('smPlayerClear').style.display = 'block';
+  document.getElementById('smPlayerDropdown').classList.remove('open');
+  const sel = document.getElementById('smMatchId');
+  sel.innerHTML='<option value="">All games</option>'; sel.style.display='none';
+  const {season, league} = getFilters();
+  let url = `/api/shots?limit=2000&player=${encodeURIComponent(name)}`;
+  if (season) url += `&season=${encodeURIComponent(season)}`;
+  if (league) url += `&league=${encodeURIComponent(league)}`;
+  const shots = await get(url);
+  const seen = new Map();
+  shots.forEach(s => {
+    if (s.match_id && !seen.has(s.match_id)) seen.set(s.match_id,{id:s.match_id,date:s.match_date||'',opp:s.opponent||s.match_id,shots:0,goals:0});
+    if (s.match_id) { const m=seen.get(s.match_id); m.shots++; if(s.goal) m.goals++; }
+  });
+  const matchList = [...seen.values()].sort((a,b)=>b.date.localeCompare(a.date));
+  sel.innerHTML='<option value="">All games</option>';
+  matchList.forEach(m => { const g=m.goals?` ⚽${m.goals}`:''; sel.insertAdjacentHTML('beforeend',`<option value="${m.id}">${m.date} vs ${m.opp}${g} (${m.shots})</option>`); });
+  sel.style.display = matchList.length ? 'inline-block' : 'none';
+  _smAllShots = shots;
+  applySmFilters();
+}
+
+function clearSmPlayer() {
+  _smSelectedPlayer=''; _smAllShots=[];
+  document.getElementById('smPlayerInput').value='';
+  document.getElementById('smPlayerClear').style.display='none';
+  document.getElementById('smMatchId').style.display='none';
+  document.getElementById('smMatchId').innerHTML='<option value="">All games</option>';
+  resetSmFilterUI(); loadShotMap();
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#smPlayerWrap')) document.getElementById('smPlayerDropdown')?.classList.remove('open');
+});
+
+(async () => {
+  await sharedInit();
+  // Support drill-through from Players page
+  const drillPlayer = sessionStorage.getItem('xg_drill_player');
+  if (drillPlayer) {
+    sessionStorage.removeItem('xg_drill_player');
+    document.getElementById('smScope').value = 'player';
+    document.getElementById('smPlayerWrap').style.display = 'inline-block';
+    await ensurePlayerCache();
+    selectSmPlayer(drillPlayer);
+  } else {
+    loadShotMap();
+  }
+})();
+</script>
+</body>
+</html>

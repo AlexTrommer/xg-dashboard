@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>xG Dashboard — Matches</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="shared.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+</head>
+<body>
+<div class="shell">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="index.html" class="logo-title">x<span>G</span></a>
+    <div class="logo-sub">Dashboard</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Analysis</div>
+    <a href="index.html"     class="nav-item"><span class="nav-icon">⬡</span><span>Teams</span></a>
+    <a href="players.html"   class="nav-item"><span class="nav-icon">◈</span><span>Players</span></a>
+    <a href="matches.html"   class="nav-item"><span class="nav-icon">◎</span><span>Matches</span></a>
+    <a href="shotmap.html"   class="nav-item"><span class="nav-icon">◉</span><span>Shot Map</span></a>
+    <div class="nav-section">Scouting</div>
+    <a href="watchlist.html" class="nav-item"><span class="nav-icon">★</span><span>Watch List</span><span class="nav-badge">NEW</span></a>
+    <div class="nav-section">Info</div>
+    <a href="about.html"     class="nav-item"><span class="nav-icon">◇</span><span>About</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-dot"></div>
+    <div class="status-text">
+      <div id="lastUpdated" style="font-size:9px">Loading…</div>
+      <div style="font-size:9px;color:var(--muted2)">Last refresh</div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title">Matches</span>
+    <div class="topbar-filters">
+      <span class="filter-label">League</span>
+      <select id="fLeague" autocomplete="off" onchange="onFilterChange()"><option value="">All Leagues</option></select>
+      <span class="filter-label">Season</span>
+      <select id="fSeason" autocomplete="off" onchange="onFilterChange()"><option value="">All Seasons</option></select>
+      <span class="filter-label">Team</span>
+      <select id="fTeam" autocomplete="off" onchange="onFilterChange()"><option value="">All Teams</option></select>
+      <button class="refresh-btn" onclick="triggerRefresh()">↻</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <div class="page-eyebrow">Match Analysis</div>
+        <div class="page-title">xG Timeline</div>
+        <div class="page-meta">Cumulative xG flow · Shot maps · Goal events</div>
+      </div>
+    </div>
+
+    <div class="timeline-container">
+      <div class="match-list" id="matchList"></div>
+      <div id="matchDetail" style="display:none">
+        <div class="match-detail-header" id="matchDetailHeader"></div>
+        <div class="chart-wrap" style="margin-top:16px"><canvas id="timelineChart"></canvas></div>
+        <div class="match-pitch-wrap">
+          <div class="match-pitch-labels">
+            <span id="matchHomeLabel" style="color:var(--cyan)">Home</span>
+            <span style="color:var(--muted);font-size:11px">← attacks →</span>
+            <span id="matchAwayLabel" style="color:var(--red)">Away</span>
+          </div>
+          <div style="position:relative">
+            <svg id="matchPitchSvg" class="pitch" viewBox="0 0 840 540" xmlns="http://www.w3.org/2000/svg">
+              <rect width="840" height="540" fill="#040a04" rx="4"/>
+              <rect x="2" y="2" width="836" height="536" fill="none" stroke="#0f1f0f" stroke-width="1"/>
+              <rect x="20" y="20" width="800" height="500" fill="none" stroke="#122012" stroke-width="1.5"/>
+              <line x1="420" y1="20" x2="420" y2="520" stroke="#122012" stroke-width="1.2"/>
+              <circle cx="420" cy="270" r="73" fill="none" stroke="#122012" stroke-width="1.2"/>
+              <circle cx="420" cy="270" r="3" fill="#122012"/>
+              <rect x="688" y="135" width="132" height="270" fill="none" stroke="#1a3a1a" stroke-width="1.2"/>
+              <rect x="796" y="202" width="44" height="136" fill="none" stroke="#1a3a1a" stroke-width="1.2"/>
+              <circle cx="751" cy="270" r="3" fill="#1a3a1a"/>
+              <path d="M 688 200 A 73 73 0 0 1 688 340" fill="none" stroke="#1a3a1a" stroke-width="1.2"/>
+              <rect x="820" y="232" width="18" height="76" fill="#091509" stroke="#1a3a1a" stroke-width="1"/>
+              <line x1="820" y1="232" x2="820" y2="308" stroke="var(--cyan)" stroke-width="2" opacity=".35"/>
+              <rect x="20" y="135" width="132" height="270" fill="none" stroke="#3a1212" stroke-width="1.2"/>
+              <rect x="20" y="202" width="44" height="136" fill="none" stroke="#3a1212" stroke-width="1.2"/>
+              <circle cx="89" cy="270" r="3" fill="#3a1212"/>
+              <path d="M 152 200 A 73 73 0 0 0 152 340" fill="none" stroke="#3a1212" stroke-width="1.2"/>
+              <rect x="2" y="232" width="18" height="76" fill="#150909" stroke="#3a1212" stroke-width="1"/>
+              <line x1="20" y1="232" x2="20" y2="308" stroke="var(--red)" stroke-width="2" opacity=".35"/>
+            </svg>
+            <div class="shot-tooltip" id="matchShotTooltip"></div>
+          </div>
+          <div style="margin-top:8px;text-align:center;color:var(--muted);font-size:11px" id="matchPitchMeta"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-header"><span class="table-title">Recent Matches</span></div>
+      <div class="table-scroll">
+        <table id="matchTable">
+          <thead><tr>
+            <th>Date</th><th>League</th><th>Home</th>
+            <th class="num">Score</th><th>Away</th>
+            <th class="num">Home xG</th><th class="num">Away xG</th><th class="num">xG Diff</th>
+          </tr></thead>
+          <tbody id="matchBody"><tr><td colspan="8"><div class="loading"><div class="spinner"></div>Loading…</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+let timelineChart = null;
+
+async function onFilterChange() {
+  _playerCache = [];
+  await loadTeamFilter();
+  loadMatches();
+}
+
+async function loadMatches() {
+  const {league, season, team} = getFilters();
+  let url = '/api/matches?limit=50';
+  if (league) url += `&league=${encodeURIComponent(league)}`;
+  if (season) url += `&season=${encodeURIComponent(season)}`;
+  if (team)   url += `&team=${encodeURIComponent(team)}`;
+  const matches = await get(url);
+  const matchList = document.getElementById('matchList');
+  if (!matches.length) {
+    matchList.innerHTML = '<div class="empty">No matches found</div>';
+    if (timelineChart) { timelineChart.destroy(); timelineChart = null; }
+    return;
+  }
+  matchList.innerHTML = matches.slice(0,20).map(m => `
+    <div class="match-card" data-mid="${m.match_id}" onclick="loadTimeline('${m.match_id}',this,'${esc(m.home_team)}','${esc(m.away_team)}',${m.home_goals},${m.away_goals},${m.home_xg},${m.away_xg})">
+      <div class="match-teams"><span>${m.home_team}</span><span class="match-score">${m.home_goals}–${m.away_goals}</span></div>
+      <div class="match-away">${m.away_team}</div>
+      <div class="match-meta">${m.date} · <span class="league-badge">${shortLeague(m.league)}</span></div>
+      <div style="margin-top:5px;font-size:10px;color:var(--muted)">xG <span style="color:var(--cyan)">${m.home_xg}</span> – <span style="color:var(--red)">${m.away_xg}</span></div>
+      <div class="mdh-goals" id="goals_${m.match_id}" style="display:none;margin-top:8px"></div>
+    </div>`).join('');
+  const body = document.getElementById('matchBody');
+  body.innerHTML = matches.map(m => {
+    const diff = (m.home_xg - m.away_xg).toFixed(2);
+    const cls  = diff > 0 ? 'pos' : diff < 0 ? 'neg' : '';
+    return `<tr class="match-row" onclick="selectMatchRow('${m.match_id}','${esc(m.home_team)}','${esc(m.away_team)}',${m.home_goals},${m.away_goals},${m.home_xg},${m.away_xg})" style="cursor:pointer">
+      <td>${m.date}</td>
+      <td><span class="league-badge">${shortLeague(m.league)}</span></td>
+      <td class="team-name">${m.home_team}</td>
+      <td class="num" style="font-family:var(--font-head);font-size:16px;font-weight:800">${m.home_goals} – ${m.away_goals}</td>
+      <td class="team-name">${m.away_team}</td>
+      <td class="num">${m.home_xg}</td>
+      <td class="num">${m.away_xg}</td>
+      <td class="num xg-diff ${cls}">${diff>0?'+':''}${diff}</td>
+    </tr>`;
+  }).join('');
+  const m0 = matches[0];
+  const firstCard = matchList.querySelector('.match-card');
+  if (firstCard && m0) loadTimeline(m0.match_id, firstCard, m0.home_team, m0.away_team, m0.home_goals, m0.away_goals, m0.home_xg, m0.away_xg);
+}
+
+function selectMatchRow(matchId, homeTeam, awayTeam, homeGoals, awayGoals, homeXg, awayXg) {
+  document.querySelectorAll('.match-row').forEach(r => r.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  const card = document.querySelector(`.match-card[data-mid="${matchId}"]`);
+  if (card) {
+    card.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    loadTimeline(matchId, card, homeTeam, awayTeam, homeGoals, awayGoals, homeXg, awayXg);
+  } else {
+    loadTimeline(matchId, null, homeTeam, awayTeam, homeGoals, awayGoals, homeXg, awayXg);
+  }
+  document.getElementById('matchDetail').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+async function loadTimeline(matchId, cardEl, homeTeam, awayTeam, homeGoals, awayGoals, homeXg, awayXg) {
+  document.querySelectorAll('.match-card').forEach(c => {
+    c.classList.remove('selected');
+    const g = c.querySelector('.mdh-goals'); if (g) g.style.display='none';
+  });
+  if (cardEl) cardEl.classList.add('selected');
+  document.getElementById('matchDetail').style.display = 'block';
+  const [data, shots] = await Promise.all([
+    get(`/api/timeline/${encodeURIComponent(matchId)}`),
+    get(`/api/shots?match_id=${encodeURIComponent(matchId)}&limit=2000`),
+  ]);
+  if (!data.length) return;
+  const teams  = [...new Set(data.map(d=>d.team))];
+  const home   = homeTeam || teams[0];
+  const away   = awayTeam || teams[1];
+  const colors = {[home]:'#00d4ff',[away]:'#ff4444'};
+  const getColor = t => colors[t] || '#8a9bb0';
+  const fmtMin = m => { m=+m; return m>90?`90+${m-90}'`:m>45&&m<46?`45+1'`:`${m}'`; };
+  const goals  = data.filter(d=>d.goal===1||d.goal===true).sort((a,b)=>+a.minute-+b.minute);
+
+  const goalHtml = goals.map(g => {
+    const col = getColor(g.team);
+    const sur = g.player ? g.player.split(' ').slice(-1)[0] : '?';
+    return `<div class="mdh-goal-row"><span class="min">${fmtMin(g.minute)}</span><span style="color:${col}">⚽</span><span class="scorer" style="color:${col}">${sur}</span><span class="xg-tag">(${(+g.xg).toFixed(2)})</span></div>`;
+  }).join('') || '<span style="color:var(--muted);font-size:10px">No goals</span>';
+  const goalEl = cardEl?.querySelector('.mdh-goals');
+  if (goalEl) { goalEl.innerHTML = goalHtml; goalEl.style.display = 'block'; }
+
+  document.getElementById('matchHomeLabel').textContent = home;
+  document.getElementById('matchHomeLabel').style.color = '#00d4ff';
+  document.getElementById('matchAwayLabel').textContent = away;
+  document.getElementById('matchAwayLabel').style.color = '#ff4444';
+  document.getElementById('matchDetailHeader').innerHTML = `
+    <div style="text-align:right;flex:1"><div class="mdh-team" style="color:#00d4ff">${home}</div><div class="mdh-xg">xG ${homeXg??'—'}</div></div>
+    <div style="text-align:center"><div class="mdh-score">${homeGoals??'—'} – ${awayGoals??'—'}</div></div>
+    <div style="text-align:left;flex:1"><div class="mdh-team" style="color:#ff4444">${away}</div><div class="mdh-xg">xG ${awayXg??'—'}</div></div>`;
+
+  const datasets = teams.map(team => {
+    const pts = data.filter(d=>d.team===team).sort((a,b)=>a.minute-b.minute);
+    const points = [{x:0,y:0}];
+    pts.forEach(p => points.push({x:p.minute,y:p.cum_xg}));
+    return {team, points, color:getColor(team), finalXg:pts[pts.length-1]?.cum_xg||0, finalMin:pts[pts.length-1]?.minute||0};
+  });
+  const maxMin = Math.max(...datasets.map(d=>d.finalMin));
+  datasets.forEach(d => { if (d.finalMin<maxMin) d.points.push({x:maxMin,y:d.finalXg}); });
+
+  const annotations = {};
+  goals.forEach((g,idx) => {
+    const color = getColor(g.team);
+    const sur   = g.player ? g.player.split(' ').slice(-1)[0] : '?';
+    annotations[`goal_${idx}`] = {
+      type:'point', xValue:+g.minute, yValue:g.cum_xg,
+      radius:6, backgroundColor:color, borderColor:'#fff', borderWidth:1.5,
+      label:{display:true, content:`⚽ ${sur} ${fmtMin(g.minute)}`, color,
+        font:{family:"'Oswald',sans-serif",size:11,weight:'700'},
+        position:'start', yAdjust:-18, backgroundColor:'rgba(5,8,10,0.9)',
+        padding:{top:3,bottom:3,left:5,right:5}, borderRadius:2}
+    };
+  });
+
+  if (timelineChart) timelineChart.destroy();
+  timelineChart = new Chart(document.getElementById('timelineChart'), {
+    type:'line', data:{datasets: datasets.map(d=>({
+      label:d.team, data:d.points, borderColor:d.color,
+      backgroundColor:d.color+'18', borderWidth:2, fill:true,
+      stepped:'before', pointRadius:0, pointHoverRadius:4,
+    }))},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{labels:{color:'#4a6070',font:{family:"'DM Mono'"}}},
+        tooltip:{backgroundColor:'rgba(5,8,10,.97)',titleColor:'#b5f542',bodyColor:'#8a9bb0',
+          callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(3)} xG`}},
+        annotation:{annotations},
+      },
+      scales:{
+        x:{type:'linear',min:0,title:{display:true,text:'Minute',color:'#4a6070'},grid:{color:'rgba(26,37,48,.5)'},ticks:{color:'#4a6070'}},
+        y:{title:{display:true,text:'Cumulative xG',color:'#4a6070'},grid:{color:'rgba(26,37,48,.5)'},ticks:{color:'#4a6070'}},
+      }
+    }
+  });
+
+  // Render pitch
+  const svg = document.getElementById('matchPitchSvg');
+  const tooltip = document.getElementById('matchShotTooltip');
+  svg.querySelectorAll('.shot-dot').forEach(el=>el.remove());
+  const PX1=20,PX2=820,PY1=20,PY2=520,W=PX2-PX1,H=PY2-PY1;
+  shots.forEach(s => {
+    const rawX = Math.max(0.17,Math.min(1.01,(+s.x||0)/100));
+    const rawY = Math.max(0.02,Math.min(0.98,(+s.y||0)/100));
+    const isHome = s.team===home;
+    const xg = Math.min(+s.xg||0.05,1);
+    const r  = Math.max(3.5,xg*16);
+    const isGoal = s.goal===1||s.goal===true;
+    const color  = isHome ? '#00d4ff' : '#ff4444';
+    const sx = isHome ? PX1+rawX*W : PX2-rawX*W;
+    const sy = PY1+rawY*H;
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx',sx); circle.setAttribute('cy',sy); circle.setAttribute('r',r);
+    circle.setAttribute('class','shot-dot');
+    if (isGoal) { circle.setAttribute('fill',color); circle.setAttribute('opacity','0.9'); circle.setAttribute('stroke','#fff'); circle.setAttribute('stroke-width','1.2'); }
+    else { circle.setAttribute('fill','none'); circle.setAttribute('stroke',color); circle.setAttribute('stroke-width','1.2'); circle.setAttribute('opacity','0.35'); }
+    circle.addEventListener('mouseenter', () => {
+      circle.setAttribute('opacity','1'); tooltip.style.display='block';
+      tooltip.innerHTML = `<div class="t-player" style="color:${color}">${s.player||'—'}</div><div class="t-row">${s.team} · ${fmtMin(s.minute)} · ${s.situation||'—'}</div><div class="t-row">xG: <span class="t-xg">${(+s.xg||0).toFixed(3)}</span></div><div class="t-row" style="font-weight:700;color:${isGoal?color:'var(--muted)'}">${isGoal?'⚽ GOAL':'No goal'}</div>`;
+    });
+    circle.addEventListener('mousemove', e => {
+      const rect = svg.closest('.match-pitch-wrap').getBoundingClientRect();
+      tooltip.style.left=(e.clientX-rect.left+14)+'px'; tooltip.style.top=(e.clientY-rect.top-10)+'px';
+    });
+    circle.addEventListener('mouseleave', () => { circle.setAttribute('opacity',isGoal?'0.9':'0.35'); tooltip.style.display='none'; });
+    svg.appendChild(circle);
+  });
+  const hs=shots.filter(s=>s.team===home), as=shots.filter(s=>s.team===away);
+  document.getElementById('matchPitchMeta').innerHTML = `<span style="color:#00d4ff">${home}: ${hs.length} shots, ${hs.filter(s=>s.goal).length} goals</span> &nbsp;·&nbsp; <span style="color:#ff4444">${away}: ${as.length} shots, ${as.filter(s=>s.goal).length} goals</span>`;
+}
+
+(async () => {
+  await sharedInit();
+  loadMatches();
+})();
+</script>
+</body>
+</html>
