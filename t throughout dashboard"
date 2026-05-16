@@ -1,0 +1,350 @@
+[33mcommit bb6250b67af37540b274cbb5237021c61e5f4a78[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 27 07:20:23 2026 +0000
+
+    chore: daily data refresh 2026-03-27
+
+[33mcommit a0265683448c0f8cc9144e211a847637665edc5d[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Mon Mar 23 07:24:03 2026 +0000
+
+    chore: daily data refresh 2026-03-23
+
+[33mcommit 81b73c4790ed5c5b37e2ecda69896d68f3d7eff8[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Sun Mar 22 07:02:28 2026 +0000
+
+    chore: daily data refresh 2026-03-22
+
+[33mcommit c769a5006644e3495ccde857802f97fa71135c3d[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Sat Mar 21 06:58:01 2026 +0000
+
+    chore: daily data refresh 2026-03-21
+
+[33mcommit 872cacb003ae952eb3cd250611fb14608c360af5[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Tue Mar 17 07:17:51 2026 +0000
+
+    chore: daily data refresh 2026-03-17
+
+[33mcommit 41906ec4fc052ca5529c28e88a6031877a6661bb[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Mon Mar 16 07:30:53 2026 +0000
+
+    chore: daily data refresh 2026-03-16
+
+[33mcommit d14e7b772160ba0db437d8e6206bb379c8bb973e[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Sun Mar 15 07:09:31 2026 +0000
+
+    chore: daily data refresh 2026-03-15
+
+[33mcommit 5b8e1c1d2f020a2db5bfc12695f038ca871e034a[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Sat Mar 14 06:59:18 2026 +0000
+
+    chore: daily data refresh 2026-03-14
+
+[33mcommit 1c7c24f72e78cfb026c36a909e074400cc159248[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 13 13:45:33 2026 -0400
+
+    force: ensure refresh.yml uses --force push
+
+[33mcommit 143bd80ca159722fcda42461db85993e59e64a22[m
+Merge: a61ca87 ba69692
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 13 05:26:58 2026 -0400
+
+    Merge branch 'main' of github.com:AlexTrommer/xg-dashboard
+
+[33mcommit a61ca87eb789e8e7b851e12009ada0722b8ece61[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 13 05:26:26 2026 -0400
+
+    fix: use --force push in Action to avoid stale ref errors
+
+[33mcommit ba69692583b83e47031e40c399599976273d8d6d[m
+Author: AlexTrommer <159087490+AlexTrommer@users.noreply.github.com>
+Date:   Fri Mar 13 05:21:09 2026 -0400
+
+    Update live dashboard link in README
+
+[33mcommit 99965c08d13dc6901c592cc58d1972e4ebb6758a[m
+Merge: 85c3c22 2967fd6
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 13 05:14:20 2026 -0400
+
+    resolve: keep local deduplicated parquets
+
+[33mcommit 85c3c220388da0539f36dd4fe71fedf580ff4dbf[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 13 05:13:10 2026 -0400
+
+    fix: dedup shots parquet, add dedup to refresh pipeline
+
+[33mcommit 2967fd6c4bd0766a52bf93bc54475302c7c60e9c[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 13 08:59:16 2026 +0000
+
+    chore: daily data refresh 2026-03-13
+
+[33mcommit f78513ee786c687578b77f854bcea45e1ddfb541[m
+Merge: 1e0f96b 1fff6d1
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 13 04:10:17 2026 -0400
+
+    Merge branch 'main' of github.com:AlexTrommer/xg-dashboard
+
+[33mcommit 1e0f96be9d3e870a037b9644fddce1d700172173[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 13 04:08:58 2026 -0400
+
+    fix: remove rebase, use force-with-lease push
+
+[33mcommit bda97bfc4eb0fdf2242e9378e22422021291d0bd[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 13 03:31:14 2026 -0400
+
+    fix: force-with-lease on push to handle race condition
+
+[33mcommit 1fff6d182df2aa35b9a72c96fae651f0ac55d19d[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 13 07:06:01 2026 +0000
+
+    chore: daily data refresh 2026-03-13
+
+[33mcommit 275b0ca17dcb00ff8db3c70edd120a8022132e55[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 13 02:16:20 2026 -0400
+
+    fix: rewrite refresh.yml cleanly
+
+[33mcommit 2824afdfe2fbf322740fc479ddd020328cae1c45[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 13 02:01:53 2026 -0400
+
+    fix: clean refresh.yml
+
+[33mcommit 2e5bd9f8b48ddcc7780fa34a95544a538c9383e3[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 21:08:18 2026 -0400
+
+    upgrade xgboost 3.0.0, sklearn 1.8.0 - full Python 3.13 compatibility
+
+[33mcommit 2dac7e27b1472864bfe223a1f36572700ed10087[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 18:39:02 2026 -0400
+
+    pin sklearn 1.8.0, retrain model
+
+[33mcommit a6e630be3ac311ed612c9d3574819cd3c84ccd4c[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 08:34:49 2026 -0400
+
+    fix: pull before push in refresh action
+
+[33mcommit 91e20d3571ffc20278fdc2b987a12c44da12d498[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 08:20:45 2026 -0400
+
+    retrain model with sklearn 1.6.1, rebuild clean parquets
+
+[33mcommit a6cce3c233ae76c288bff5cdd1aaf81f64e21f4b[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 05:10:13 2026 -0400
+
+    rebuild aggregates from deduplicated shots data
+
+[33mcommit a24163ce70b4fb38a50792cfeaba3d4b40e74ed0[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 03:55:42 2026 -0400
+
+    deduplicate shots parquet - remove duplicate 2025 season rows
+
+[33mcommit 8b258868f7c4befb874e601a4528df0bc158e3cc[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 03:47:13 2026 -0400
+
+    upgrade pyarrow to 18.1.0 for Python 3.13 wheel
+
+[33mcommit 22a6507d618d81775836495938d52910ce399cfb[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 03:43:26 2026 -0400
+
+    upgrade pyarrow to 17.0.0 for Python 3.13 compatibility
+
+[33mcommit be624c3a65e285fc4746eeb1790f7a06545c3727[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 03:41:36 2026 -0400
+
+    upgrade numpy and scikit-learn for Python 3.13 compatibility
+
+[33mcommit 6989fc7c0229d1ba81cf14be2c45fcf8ba467acd[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 03:39:41 2026 -0400
+
+    upgrade pandas to 2.2.3 for Python 3.13 compatibility
+
+[33mcommit 9a48707c3a4458ad9ee8b0945aacf3cc55e08c45[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 03:36:37 2026 -0400
+
+    pin Python to 3.12 for Railpack
+
+[33mcommit bc13e3837cf98aaa0b498d64485ba5cc44f3a0f5[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 03:26:58 2026 -0400
+
+    pin to ubuntu-22.04 and Python 3.12.11 in CI
+
+[33mcommit ff56ff0f527b6ed060547a7351b57c0475249c4f[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 03:24:37 2026 -0400
+
+    Hopefully fix OOM
+
+[33mcommit c0b14944d8eb793c275410c110a2a349f5307e2c[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 03:24:03 2026 -0400
+
+    fix search clear button vertical alignment
+
+[33mcommit 76886ede149bd10454e0a5ba6acb4f1a992a7d50[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 03:20:47 2026 -0400
+
+    fix blank shot map
+
+[33mcommit 642e7d758b6a3e662f7bd828236d7c0f4015efbe[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 02:59:09 2026 -0400
+
+    fix seasons endpoint
+
+[33mcommit d35051074ace554657a1260bce1cc443003f99b7[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 02:53:22 2026 -0400
+
+    cache parquets in memory — fix OOM on repeated requests
+
+[33mcommit 7b4bdb1bbb1e7a57d3ab60f175a9b701265c41fe[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Thu Mar 12 06:39:53 2026 +0000
+
+    chore: daily data refresh 2026-03-12
+
+[33mcommit f46ce9a019abf1c645327a5c079f37039235d881[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 02:33:35 2026 -0400
+
+    fix workflow — add contents write permission
+
+[33mcommit 2cc4e643ef5fa3bd75166b441e6dafa915732e4d[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 02:26:37 2026 -0400
+
+    fix workflow — remove last_updated.txt from git add
+
+[33mcommit 1c8e97d889e74987192e1854224a36df54d3ab3d[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 02:02:49 2026 -0400
+
+    disable auto-fetch in startup — serve prebuilt parquets
+
+[33mcommit fa225a271ce94e955d13ac87016d203ce9333491[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 02:02:04 2026 -0400
+
+    add --current-season-only flag and daily GitHub Action
+
+[33mcommit bcb97d188fd71cf538c5e95075020d02e67b27bc[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 01:57:14 2026 -0400
+
+    add prebuilt parquets — Railway serves static data
+
+[33mcommit 05570c749fba209c97145e013ac829042125714e[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 01:09:17 2026 -0400
+
+    update model.pkl path to repo root
+
+[33mcommit f4bddc2d6b316a65b9633dbc024cf69056bbeb65[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 01:07:28 2026 -0400
+
+    move model.pkl to repo root
+
+[33mcommit cea22e84c7b63a5f605b07a8d4a6147fd6100b99[m
+Author: Alex <atrommer@umich.edu>
+Date:   Thu Mar 12 00:34:17 2026 -0400
+
+    add .gitignore and pretrained model bundle
+
+[33mcommit 6dc9b1b14b61139627cdcb4930532be0b0926c35[m
+Author: Alex <atrommer@umich.edu>
+Date:   Wed Mar 11 23:19:05 2026 -0400
+
+    Updated README to be more accurate to the current state of the project.
+
+[33mcommit 379cf8d0257993c737daab0a61ba194079866af3[m
+Author: Alex <atrommer@umich.edu>
+Date:   Wed Mar 11 23:15:00 2026 -0400
+
+    Changed api call to 24 hrs instead of 6, will make the program less memory intensive
+
+[33mcommit 9b20a6f28fa4c956f643332eceb44babd3c0ae80[m
+Author: Alex <atrommer@umich.edu>
+Date:   Wed Mar 11 23:11:46 2026 -0400
+
+    fix pip path in nixpacks install phase
+
+[33mcommit 573db7052b23ea26fbc084e1995f90e41672d768[m
+Author: Alex <atrommer@umich.edu>
+Date:   Wed Mar 11 23:08:37 2026 -0400
+
+    install understat 0.1.14 without deps
+
+[33mcommit 5af7e7ebaf8ea46c62eaa26c780536d4aef4f89b[m
+Author: Alex <atrommer@umich.edu>
+Date:   Wed Mar 11 22:03:31 2026 -0400
+
+    run ensure_data in background thread so server starts immediately
+
+[33mcommit fb741e7d105d658df77097e6bc9cc9c104736786[m
+Author: Alex <atrommer@umich.edu>
+Date:   Wed Mar 11 20:35:00 2026 -0400
+
+    fix start command — remove double data.py call
+
+[33mcommit 06e29a29c3771e08b71d87ff1ce08836b5605165[m
+Author: Alex <atrommer@umich.edu>
+Date:   Wed Mar 11 20:27:20 2026 -0400
+
+    add startup.py and ensure_data call
+
+[33mcommit 0b486ba39fff4d1d5b5216ae2e88fb8140b08195[m
+Author: Alex <atrommer@umich.edu>
+Date:   Wed Mar 11 20:23:25 2026 -0400
+
+    fix aiohttp/understat version conflict
+
+[33mcommit 7864cef529b4e22952c57cae3784da0ce9fa8b6f[m
+Author: Alex <atrommer@umich.edu>
+Date:   Wed Mar 11 20:22:09 2026 -0400
+
+    fix aiohttp/understat version conflict
+
+[33mcommit 4e4ebc4b1a7ad0939a4ac131d79c07903a8e7381[m
+Author: Alex <atrommer@umich.edu>
+Date:   Wed Mar 11 20:14:18 2026 -0400
+
+    clean up repo — remove data files, pycache, zone identifiers
+
+[33mcommit 3c1be1c63bc5295ab65ace3127ee1e95e9722644[m
+Author: Alex <atrommer@umich.edu>
+Date:   Wed Mar 11 20:12:52 2026 -0400
+
+    initial deploy
