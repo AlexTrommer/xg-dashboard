@@ -278,4 +278,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/{full_path:path}")
 def spa(full_path: str):
+    p = Path(f"static/{full_path}")
+    if p.exists() and p.is_file():
+        return FileResponse(str(p))
     return FileResponse("static/index.html")
