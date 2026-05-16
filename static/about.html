@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>xG Dashboard — About</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="shared.css"/>
+</head>
+<body>
+<div class="shell">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="index.html" class="logo-title">x<span>G</span></a>
+    <div class="logo-sub">Dashboard</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Analysis</div>
+    <a href="index.html"     class="nav-item"><span class="nav-icon">⬡</span><span>Teams</span></a>
+    <a href="players.html"   class="nav-item"><span class="nav-icon">◈</span><span>Players</span></a>
+    <a href="matches.html"   class="nav-item"><span class="nav-icon">◎</span><span>Matches</span></a>
+    <a href="shotmap.html"   class="nav-item"><span class="nav-icon">◉</span><span>Shot Map</span></a>
+    <div class="nav-section">Scouting</div>
+    <a href="watchlist.html" class="nav-item"><span class="nav-icon">★</span><span>Watch List</span><span class="nav-badge">NEW</span></a>
+    <div class="nav-section">Info</div>
+    <a href="about.html"     class="nav-item"><span class="nav-icon">◇</span><span>About</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-dot"></div>
+    <div class="status-text">
+      <div id="lastUpdated" style="font-size:9px">Loading…</div>
+      <div style="font-size:9px;color:var(--muted2)">Last refresh</div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title">About</span>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <div class="page-eyebrow">Documentation</div>
+        <div class="page-title">How It Works</div>
+        <div class="page-meta">Data pipeline · Model architecture · Feature engineering</div>
+      </div>
+    </div>
+
+    <div class="about-layout">
+      <article class="about-article">
+
+        <h2>What is this?</h2>
+        <p>An <strong>Expected Goals (xG) dashboard</strong> for the top 5 European football leagues — Premier League, La Liga, Bundesliga, Serie A, and Ligue 1. It pulls shot-by-shot data from Understat, trains a custom XGBoost model to predict goal probability, and presents the results as interactive team, player, and match analytics.</p>
+        <p>The model is trained on historical data (2020–2024) and scored against a 2025 holdout set, where it achieves a Brier score of <strong>0.074</strong> — comparable to Understat's own model at 0.072.</p>
+
+        <h2>Data Pipeline</h2>
+        <div class="pipeline-steps">
+          <div class="pipeline-step">
+            <div class="ps-title">Fetch from Understat</div>
+            <div class="ps-desc">For each league and season (2020–present), we use the <code>understat</code> Python library to pull every match result, then fetch individual shot data per match via <code>get_match_shots()</code>. Each shot record includes position (x, y), shot type, situation, last action, and whether it resulted in a goal. ~250k shots total across 5 leagues and 6 seasons.</div>
+          </div>
+          <div class="pipeline-step">
+            <div class="ps-title">Feature Engineering</div>
+            <div class="ps-desc">Raw coordinates are transformed into 24 model features covering shot geometry (distance, angle, their squares and interactions), shot type flags (header, cross, rebound, throughball), interaction terms (header × distance, cross × distance), zone classification, and contextual proxies like <em>fast_break</em> — which flags transition shots preceded by a take-on, ball recovery, or throughball.</div>
+          </div>
+          <div class="pipeline-step">
+            <div class="ps-title">Per-Situation Model Training</div>
+            <div class="ps-desc">Rather than one global model, shots are routed to specialist XGBoost models based on their situation. Each specialist uses a <strong>tailored feature set</strong> and undergoes independent hyperparameter search (GridSearchCV, 3-fold CV, optimising Brier score). This means corner specialists focus on header mechanics while set-piece models focus on positional geometry.</div>
+          </div>
+          <div class="pipeline-step">
+            <div class="ps-title">Calibration</div>
+            <div class="ps-desc">Each specialist is wrapped in <code>CalibratedClassifierCV(method="isotonic", cv=5)</code> to ensure predicted probabilities are well-calibrated — a model predicting 0.30 xG should see goals ~30% of the time. Penalty kicks are assigned a fixed xG of <strong>0.76</strong> rather than being modelled (insufficient variance).</div>
+          </div>
+          <div class="pipeline-step">
+            <div class="ps-title">Aggregation & Serving</div>
+            <div class="ps-desc">Scored shots are aggregated into team, player, match timeline, and watchlist parquet files. A <strong>FastAPI</strong> backend serves these via REST endpoints. The frontend is a multi-page vanilla JS application. Auto-refresh runs daily for the current season.</div>
+          </div>
+        </div>
+
+        <h2>Specialist Models</h2>
+        <p>Three situation groups currently have dedicated models. Understat doesn't tag counter-attacks as a separate situation (they appear as <em>OpenPlay</em>), so counter context is captured via the <strong>fast_break</strong> feature instead.</p>
+        <ul>
+          <li><strong>OpenPlay</strong> — Full 24-feature set. Deeper trees (max_depth up to 5). Covers the vast majority of shots (~74%). Includes throughball, rebound and transition proxies.</li>
+          <li><strong>FromCorner</strong> — 13 features focused on header mechanics: header × distance, header × angle, centrality, weak-angle header flag. Corners are almost exclusively aerial situations; removing irrelevant features reduces overfitting.</li>
+          <li><strong>SetPiece</strong> — Covers <em>SetPiece</em> (indirect free kicks) and <em>DirectFreekick</em>. 13 features focused on distance, angle and shot type. No transition features — set pieces are stationary.</li>
+        </ul>
+
+        <h2>The Watch List</h2>
+        <p>Rather than a static season table, the Watch List is a <strong>rolling form guide</strong> based on each player's last 5 games. For each player with ≥3 games and ≥3 shots in that window, it computes a 0–100 rating from two outcome-independent components:</p>
+        <ul>
+          <li><strong>npxG/90 (60%)</strong> — Non-penalty xG per 90 minutes, estimated from shot volume. Rewards players generating high-quality chances consistently.</li>
+          <li><strong>Shot Quality (40%)</strong> — Mean xG per shot, capped at 0.50. Rewards players getting into dangerous positions, not just shooting often.</li>
+        </ul>
+        <p>Each component is normalised 0–1 across all qualifying players before blending, then the composite score is scaled to 0–100. Arrows show movement vs the prior 5-game window — hover for previous period stats. Goals are shown for context but do <strong>not</strong> affect the rating.</p>
+
+        <h2>Known Limitations</h2>
+        <ul>
+          <li><strong>No defensive context</strong> — Understat doesn't expose freeze-frame data (defender positions). This is likely the main reason our AUC (0.792) slightly trails Understat (0.805).</li>
+          <li><strong>No goalkeeper data</strong> — Shot-stopping quality isn't modelled. A shot at an elite keeper has the same xG as one at a weaker keeper.</li>
+          <li><strong>Understat coordinates</strong> are from event data, not tracking data, so positional accuracy is limited to the data source.</li>
+          <li><strong>Counter-attack proxy</strong> — Understat doesn't provide a counter-attack flag. We approximate with last-action context (TakeOn, BallRecovery, Throughball).</li>
+        </ul>
+
+      </article>
+
+      <aside class="about-sidebar">
+        <div class="aside-card">
+          <div class="aside-card-title">Model Performance</div>
+          <div class="metric-row"><span class="m-name">ROC-AUC (ours)</span><span class="m-val" style="color:var(--accent)">0.792</span></div>
+          <div class="metric-row"><span class="m-name">ROC-AUC (Understat)</span><span class="m-val" style="color:var(--muted)">0.805</span></div>
+          <div class="metric-row"><span class="m-name">Brier score (ours)</span><span class="m-val" style="color:var(--accent)">0.074</span></div>
+          <div class="metric-row"><span class="m-name">Brier score (Understat)</span><span class="m-val" style="color:var(--muted)">0.072</span></div>
+          <div class="metric-row"><span class="m-name">Training seasons</span><span class="m-val">2020–24</span></div>
+          <div class="metric-row"><span class="m-name">Holdout season</span><span class="m-val">2025</span></div>
+          <div class="metric-row"><span class="m-name">Total shots</span><span class="m-val">~256k</span></div>
+        </div>
+        <div class="aside-card">
+          <div class="aside-card-title">Feature Groups</div>
+          <div class="metric-row"><span class="m-name">Geometry</span><span class="m-val">5</span></div>
+          <div class="metric-row"><span class="m-name">Shot type flags</span><span class="m-val">5</span></div>
+          <div class="metric-row"><span class="m-name">Interactions</span><span class="m-val">5</span></div>
+          <div class="metric-row"><span class="m-name">Zone / context</span><span class="m-val">5</span></div>
+          <div class="metric-row"><span class="m-name">Proxy features</span><span class="m-val">4</span></div>
+          <div class="metric-row"><span class="m-name">Total (global)</span><span class="m-val" style="color:var(--accent)">24</span></div>
+        </div>
+        <div class="aside-card">
+          <div class="aside-card-title">Data Coverage</div>
+          <div class="metric-row"><span class="m-name">Premier League</span><span class="m-val">✓</span></div>
+          <div class="metric-row"><span class="m-name">La Liga</span><span class="m-val">✓</span></div>
+          <div class="metric-row"><span class="m-name">Bundesliga</span><span class="m-val">✓</span></div>
+          <div class="metric-row"><span class="m-name">Serie A</span><span class="m-val">✓</span></div>
+          <div class="metric-row"><span class="m-name">Ligue 1</span><span class="m-val">✓</span></div>
+        </div>
+        <div class="aside-card">
+          <div class="aside-card-title">Quick Start</div>
+          <div class="code-block">
+            <span class="kw"># fetch all data</span><br>
+            python data.py<br><br>
+            <span class="kw"># train specialists</span><br>
+            python train.py<br><br>
+            <span class="kw"># rebuild tables</span><br>
+            python data.py <span class="str">--rebuild-tables</span><br><br>
+            <span class="kw"># serve</span><br>
+            uvicorn api:app <span class="str">--port 8000</span>
+          </div>
+        </div>
+        <div class="aside-card">
+          <div class="aside-card-title">Pages</div>
+          <div class="metric-row"><span class="m-name"><a href="index.html" style="color:var(--muted);text-decoration:none;">⬡ Teams</a></span><span class="m-val" style="font-size:11px;color:var(--muted2)">xG table</span></div>
+          <div class="metric-row"><span class="m-name"><a href="players.html" style="color:var(--muted);text-decoration:none;">◈ Players</a></span><span class="m-val" style="font-size:11px;color:var(--muted2)">rankings</span></div>
+          <div class="metric-row"><span class="m-name"><a href="matches.html" style="color:var(--muted);text-decoration:none;">◎ Matches</a></span><span class="m-val" style="font-size:11px;color:var(--muted2)">timeline</span></div>
+          <div class="metric-row"><span class="m-name"><a href="shotmap.html" style="color:var(--muted);text-decoration:none;">◉ Shot Map</a></span><span class="m-val" style="font-size:11px;color:var(--muted2)">spatial</span></div>
+          <div class="metric-row"><span class="m-name"><a href="watchlist.html" style="color:var(--accent);text-decoration:none;">★ Watch List</a></span><span class="m-val" style="font-size:11px;color:var(--muted2)">form</span></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+(async () => {
+  await sharedInit();
+})();
+</script>
+</body>
+</html>
