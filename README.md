@@ -31,28 +31,6 @@ All specialists are wrapped in `CalibratedClassifierCV(method="isotonic", cv=5)`
 | Zone / context | shot_zone, is_big_chance, minute_norm, central_threat, is_penalty_area |
 | Proxy | fast_break, assisted_header, is_cutback, weak_angle_header |
 
-## Local setup
-
-```bash
-pip install -r requirements.txt
-
-# Optional: sanity check before the full run (~2 min)
-python check.py
-
-# Fetch all data and train model (~15–20 min first run)
-python data.py
-
-python train.py           # full grid
-python train.py --quick   # faster, smaller grid
-
-# Rebuild aggregated tables from existing shots (skip re-fetch)
-python data.py --rebuild-tables
-
-# Start the server
-uvicorn api:app --reload --port 8000
-# Open http://localhost:8000
-```
-
 Data refreshes automatically every **24 hours** (current season only).
 
 ## API endpoints
@@ -94,7 +72,7 @@ api.py        FastAPI — serves parquet data as JSON, schedules 24-hour
 startup.py    First-boot data fetch — runs data.py in background thread
               if parquet files are missing
 static/       Single-page frontend (Chart.js, vanilla JS)
-data/         Parquet files + trained model (gitignored)
+data/         Contains the trained model and parquet data. Not included here.
 ```
 
 ## Notes
