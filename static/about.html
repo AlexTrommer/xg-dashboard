@@ -55,7 +55,7 @@
 
         <h2>What is this?</h2>
         <p>An <strong>Expected Goals (xG) dashboard</strong> for the top 5 European football leagues — Premier League, La Liga, Bundesliga, Serie A, and Ligue 1. It pulls shot-by-shot data from Understat, trains a custom XGBoost model to predict goal probability, and presents the results as interactive team, player, and match analytics.</p>
-        <p>The model is trained on historical data (2020–2024) and scored against a 2025 holdout set, where it achieves a Brier score of <strong>0.074</strong> — comparable to Understat's own model at 0.072.</p>
+        <p>The model is trained on historical data (2020–2025) and scored against a 2026 holdout set, where it achieves a Brier score of <strong>0.075</strong> — comparable to Understat's own model at 0.072.</p>
 
         <h2>Data Pipeline</h2>
         <div class="pipeline-steps">
@@ -110,13 +110,13 @@
       <aside class="about-sidebar">
         <div class="aside-card">
           <div class="aside-card-title">Model Performance</div>
-          <div class="metric-row"><span class="m-name">ROC-AUC (ours)</span><span class="m-val" style="color:var(--accent)">0.792</span></div>
+          <div class="metric-row"><span class="m-name">ROC-AUC (ours)</span><span class="m-val" style="color:var(--accent)">0.787</span></div>
           <div class="metric-row"><span class="m-name">ROC-AUC (Understat)</span><span class="m-val" style="color:var(--muted)">0.805</span></div>
           <div class="metric-row"><span class="m-name">Brier score (ours)</span><span class="m-val" style="color:var(--accent)">0.074</span></div>
           <div class="metric-row"><span class="m-name">Brier score (Understat)</span><span class="m-val" style="color:var(--muted)">0.072</span></div>
-          <div class="metric-row"><span class="m-name">Training seasons</span><span class="m-val">2020–24</span></div>
-          <div class="metric-row"><span class="m-name">Holdout season</span><span class="m-val">2025</span></div>
-          <div class="metric-row"><span class="m-name">Total shots</span><span class="m-val">~256k</span></div>
+          <div class="metric-row"><span class="m-name">Training seasons</span><span class="m-val">2020–25</span></div>
+          <div class="metric-row"><span class="m-name">Holdout season</span><span class="m-val">2026</span></div>
+          <div class="metric-row"><span class="m-name">Total shots</span><span class="m-val">~268k</span></div>
         </div>
         <div class="aside-card">
           <div class="aside-card-title">Feature Groups</div>

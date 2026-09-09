@@ -24,11 +24,11 @@ LEAGUES = {
     "Serie_A":    "Serie A",
     "Ligue_1":    "Ligue 1",
 }
-CURRENT_SEASON = "2025"
+CURRENT_SEASON = "2026"
 GOAL_X         = 100.0
 GOAL_Y_CENTER  = 50.0
 GOAL_WIDTH_PCT = 11.6
-PENALTY_XG     = 0.76
+PENALTY_XG     = 0.79
  
 FEATURES = [
     # geometry
