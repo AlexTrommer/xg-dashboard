@@ -31,21 +31,20 @@ GOAL_WIDTH_PCT = 11.6
 PENALTY_XG     = 0.79
  
 FEATURES = [
-    # geometry
     "distance", "angle_deg", "distance_sq", "distance_x_angle",
     "dist_x_angle_sq",
-    # shot type
+
     "is_header", "is_set_piece", "is_rebound",
     "is_cross", "is_throughball",
-    # interactions: shot type x position
+
     "header_x_dist", "header_x_angle",
     "cross_x_dist", "throughball_x_dist",
     "rebound_x_dist",
-    # zone and context
+
     "shot_zone", "is_big_chance", "minute_norm",
-    # y-axis centrality
+
     "central_threat",
-    # proxy features
+
     "fast_break", "assisted_header", "is_cutback",
     "is_penalty_area", "weak_angle_header",
 ]
@@ -56,6 +55,7 @@ async def _fetch_league(league: str, season: str) -> list:
     try:
         import aiohttp
         import understat
+
         all_shots = []
         async with aiohttp.ClientSession() as session:
             u = understat.Understat(session)
@@ -116,7 +116,7 @@ def pull_shots(seasons=None) -> pd.DataFrame:
             time.sleep(1.5)
     df = pd.DataFrame(rows)
     if df.empty:
-        raise RuntimeError("No shots fetched — check your internet connection and Understat availability")
+        raise RuntimeError("No shots fetched. Please check your internet connection and Understat availability")
     df = df.drop_duplicates(subset=["id"])
     print(f"\nTotal: {len(df):,} shots | {df['goal'].sum():,} goals")
     return df

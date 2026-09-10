@@ -57,7 +57,6 @@
         <div class="page-title">Team Intelligence</div>
         <div class="page-meta">xG · xGA · Shot quality · Efficiency ratings</div>
       </div>
-      <button class="toggle" id="possToggle" onclick="togglePoss(this)">Possession xG</button>
     </div>
 
     <div class="stat-grid" id="teamStats"></div>
@@ -73,7 +72,7 @@
             <th onclick="sortTable('teamTable',3)" class="num">MP</th>
             <th onclick="sortTable('teamTable',4)" class="num">Goals</th>
             <th onclick="sortTable('teamTable',5)" class="num">xG</th>
-            <th onclick="sortTable('teamTable',6)" class="num">G−xG</th>
+            <th onclick="sortTable('teamTable',6)" class="num">G-xG</th>
             <th onclick="sortTable('teamTable',7)" class="num">xGA</th>
             <th onclick="sortTable('teamTable',8)" class="num">xGA Diff</th>
             <th onclick="sortTable('teamTable',9)" class="num poss-col">xG/Poss</th>
@@ -139,7 +138,7 @@ async function loadTeams() {
       <td class="num">${t.goals}</td>
       <td class="num">${t.xg}</td>
       <td class="num xg-diff ${cls}">${diff>0?'+':''}${diff}</td>
-      <td class="num">${t.xga??'—'}</td>
+      <td class="num">${t.xga??'-'}</td>
       <td class="num xg-diff ${xgaCls}">${t.xga_diff!=null?(t.xga_diff>0?'+':'')+t.xga_diff:'—'}</td>
       <td class="num poss-col" style="display:${possOn?'':'none'}">${t.xg_poss??'—'}</td>
       <td class="num poss-col" style="display:${possOn?'':'none'}">${t.xga_poss??'—'}</td>
